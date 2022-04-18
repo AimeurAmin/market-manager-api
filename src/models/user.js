@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
+    isCompanyOwner: {
+      type: Boolean,
+      default: false
+    },
     confirmed: {
       type: Boolean,
       default: false,
@@ -66,6 +70,13 @@ const userSchema = new mongoose.Schema(
 
 userSchema.virtual("tasks", {
   ref: "Task",
+  localField: "_id",
+  foreignField: "owner",
+});
+
+
+userSchema.virtual("companies", {
+  ref: "Company",
   localField: "_id",
   foreignField: "owner",
 });
