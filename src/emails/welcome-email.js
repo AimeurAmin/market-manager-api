@@ -29,7 +29,8 @@ const welcomeMail = async (email, name, token) => {
       title: "Market Manager",
       email,
       name,
-      token
+      token,
+      baseUrl: process.env.BASE_URL
     },
   });
   console.log("Message sent: %s", info.messageId);
