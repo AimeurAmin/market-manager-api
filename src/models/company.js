@@ -13,10 +13,10 @@ const companySchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      trim: true
+      trim: true,
     },
     owner: {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",
     },
@@ -25,6 +25,13 @@ const companySchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+
+companySchema.virtual("users", {
+  ref: "User",
+  localField: "_id",
+  foreignField: "company_id",
+});
 
 const Company = mongoose.model("Company", companySchema);
 

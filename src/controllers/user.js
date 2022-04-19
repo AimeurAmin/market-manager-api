@@ -3,7 +3,8 @@ const Company = require("../models/company");
 const User = require("../models/user");
 
 const profile = async (req, res) => {
-  res.send(req.user);
+  const user = await req.user.populate('company');
+  res.send(user);
 };
 
 const updatePassword = async (req, res) => {
@@ -201,6 +202,7 @@ const signup = async (req, res) => {
       });
       await company.save();
       user.isCompanyOwner = true;
+      user.company_id = company._id;
     }
     await user.save();
     const token = await user.generateAuthToken();
