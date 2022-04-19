@@ -18,8 +18,6 @@ const welcomeMail = async (email, name, token) => {
   };
 
   transporter.use("compile", hbs(handlebarOptions));
-  console.log('token from mail sender');
-  console.log(token);
   let info = await transporter.sendMail({
     from: 'Awad', // sender address
     to: email, // list of receivers

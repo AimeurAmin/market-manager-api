@@ -1,3 +1,4 @@
+const validateFields = require("../helpers/validateFields");
 const Task = require("../models/task");
 
 const addTask = async (req, res) => {
@@ -83,18 +84,17 @@ const taskById = async (req, res) => {
 
 const updateTaskById = async (req, res) => {
   const allowedUpdates = ["title", "description", "done"];
-  const updateFields = Object.keys(req.body);
-
-  const invalidFields = updateFields.filter(
-    (field) => !allowedUpdates.includes(field)
-  );
-
-  if (invalidFields.length > 0) {
-    return res.status(400).send({
-      error: `the following fields are invalid: ${[...invalidFields]}`,
-      invalidFields,
-    });
-  }
+  const requiredFields = ["done"]
+  
+  const {invalidFields, missingFields} = validateFields(allowedUpdates, requiredFields, req.body)
+  
+  if (invalidFields.length > 0)
+  return res.status(400).send({
+    error: `the following fields are invalid: ${invalidFields} | and the following fields are required: ${missingFields}`,
+    invalidFields,
+    missingFields
+  });
+  
 
   try {
     const task = await Task.findOneAndUpdate(

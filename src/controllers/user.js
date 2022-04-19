@@ -1,8 +1,10 @@
 const bcrypt = require("bcryptjs");
+const Company = require("../models/company");
 const User = require("../models/user");
 
 const profile = async (req, res) => {
-  res.send(req.user);
+  const user = await req.user.populate('company');
+  res.send(user);
 };
 
 const updatePassword = async (req, res) => {
@@ -186,9 +188,22 @@ const errorController = (error, req, res, next) => {
 };
 
 const signup = async (req, res) => {
-  const user = new User(req.body);
+  const { companyName, companyDescription, companyAddress, ...userInfo } =
+    req.body;
+  const user = new User({ ...userInfo });
 
   try {
+    if (req.body.companyName) {
+      const company = new Company({
+        name: companyName,
+        description: companyDescription,
+        address: companyAddress,
+        owner: user._id,
+      });
+      await company.save();
+      user.isCompanyOwner = true;
+      user.company_id = company._id;
+    }
     await user.save();
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
@@ -201,8 +216,8 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findByCredentials(email, password);
-    if(!user.confirmed) {
-      throw new Error('This account was not confirmed yet!')
+    if (!user.confirmed) {
+      throw new Error("This account was not confirmed yet!");
     }
     const token = await user.generateAuthToken();
 

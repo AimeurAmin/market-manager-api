@@ -39,6 +39,15 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
+    isCompanyOwner: {
+      type: Boolean,
+      default: false
+    },
+    company_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Company"
+    },
     confirmed: {
       type: Boolean,
       default: false,
@@ -70,6 +79,13 @@ userSchema.virtual("tasks", {
   foreignField: "owner",
 });
 
+
+// userSchema.virtual("companies", {
+//   ref: "Company",
+//   localField: "_id",
+//   foreignField: "owner",
+// });
+
 userSchema.methods.toJSON = function (params) {
   const user = this.toObject();
 
@@ -97,7 +113,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
 
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ _id: user._id.toString(), company_id: user.company_id.toString() }, process.env.JWT_SECRET, {
     expiresIn: "1 days",
   });
 
@@ -121,7 +137,6 @@ userSchema.post("save", async function (user) {
   if (user?.tokens[0]?.token && !user.confirmed) {
     welcomeMail(user.email, user.name, user.tokens[0]?.token);
   } else if (user.confirmed && user.resetToken) {
-    console.log("rani b3atht");
     resetPasswordMail(user.email, user.name, user.resetToken);
   }
 });

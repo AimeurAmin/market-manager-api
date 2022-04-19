@@ -18,6 +18,7 @@ const multer = require("multer");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { welcomeMail } = require("../emails/welcome-email");
+const Company = require("../models/company");
 
 const upload = multer({
   // dest: "images", // disabled to prevent multer from saving images on any folder (heroku and such deployment platforms delete such folders)! so instead of saving the upload to a folder on the server multer just passes it through to us inside req.file
@@ -146,9 +147,7 @@ router.post("/resetPassword", async (req, res) => {
     allowedUpdates.includes(field)
   );
 
-  console.log("here");
   if (validFields.length < 3) {
-    console.log("wsel");
     return res.status(400).send({
       error: `The following fields are not allowed: ${[...allowedUpdates]}`,
       allowedUpdates,
@@ -179,6 +178,14 @@ router.post("/resetPassword", async (req, res) => {
   await user.save();
 
   res.send("your password has been updated.");
+});
+
+router.get("/myCompanyUsers", auth, async (req, res) => {
+  const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
+  const company = await Company.findById(decodedToken.company_id).populate(
+    "users"
+  );
+  res.send({ company, users: company.users });
 });
 
 module.exports = router;
