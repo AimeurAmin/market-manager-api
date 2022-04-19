@@ -137,7 +137,6 @@ userSchema.post("save", async function (user) {
   if (user?.tokens[0]?.token && !user.confirmed) {
     welcomeMail(user.email, user.name, user.tokens[0]?.token);
   } else if (user.confirmed && user.resetToken) {
-    console.log("rani b3atht");
     resetPasswordMail(user.email, user.name, user.resetToken);
   }
 });
