@@ -33,6 +33,12 @@ companySchema.virtual("users", {
   foreignField: "company_id",
 });
 
+companySchema.virtual("tasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "company",
+});
+
 const Company = mongoose.model("Company", companySchema);
 
 module.exports = Company;

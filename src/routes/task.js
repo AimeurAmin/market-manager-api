@@ -1,4 +1,6 @@
 const express = require("express");
+const jwt = require('jsonwebtoken');
+const Company = require('../models/company')
 const {
   addTask,
   countTasks,
@@ -31,5 +33,12 @@ router.patch("/tasks/:id", auth, updateTaskById);
 
 // DELETE TASK
 router.delete("/tasks/:id", auth, deleteTaskById);
+
+router.get("/campanyTasks", auth, async (req, res) => {
+  const token = req.token
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  const company = await Company.findById(decodedToken.company_id).populate("tasks");
+  res.send({ tasks: company.tasks });
+})
 
 module.exports = router;
