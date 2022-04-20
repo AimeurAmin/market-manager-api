@@ -26,15 +26,15 @@ const clientSchema = mongoose.Schema({
   },
   limit_credit: {
     type: Number,
-    trim: true
+    default: 0
   },
   remaining_credit: {
     type: Number,
-    trim: true
+    default: 0
   },
   payment_dead_line: {
     type: Number,
-    trim: true
+    default: 0,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
