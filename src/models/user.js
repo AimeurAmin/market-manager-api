@@ -57,7 +57,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: undefined,
     },
-    roles_user: [{
+    user_roles: [{
       type: mongoose.Schema.Types.ObjectId,
     }],
     tokens: [
