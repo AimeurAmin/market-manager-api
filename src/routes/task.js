@@ -1,7 +1,7 @@
-const express = require("express");
-const jwt = require('jsonwebtoken');
-const Company = require('../models/company')
-const {
+import  express from "express";
+import  jwt from 'jsonwebtoken';
+import  Company from "../models/company.js"
+import  {
   addTask,
   countTasks,
   userTasks,
@@ -9,8 +9,9 @@ const {
   taskById,
   updateTaskById,
   deleteTaskById,
-} = require("../controllers/task");
-const auth = require("../middleware/auth");
+} from "../controllers/task.js";
+import  auth from "../middleware/auth.js";
+
 const router = express.Router();
 
 // ADD NEW TASK
@@ -41,4 +42,4 @@ router.get("/campanyTasks", auth, async (req, res) => {
   res.send({ tasks: company.tasks });
 })
 
-module.exports = router;
+export default router;
