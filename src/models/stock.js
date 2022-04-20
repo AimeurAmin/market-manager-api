@@ -44,7 +44,7 @@ const stockSchema = mongoose.Schema({
   }
 });
 
-productSchema.virtual('sales', {
+stockSchema.virtual('sales', {
     ref: 'Sale',
     localField: '_id',
     foreignField: 'stock_id',
