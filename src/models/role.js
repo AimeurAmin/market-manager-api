@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const roleSchema = mongoose.Schema({
   role_name: {
@@ -9,25 +9,31 @@ const roleSchema = mongoose.Schema({
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'User',
+    ref: "User",
   },
   company_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'Company',
+    ref: "Company",
   },
+  role_permissions: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Permission",
+    },
+  ],
   timestamps: {
     type: Date,
-    default: Date.now()
+    default: Date.now(),
   },
 });
 
-roleSchema.virtual('permissions', {
+roleSchema.virtual("permissions", {
   ref: "Permission",
   localField: "_id",
   foreignField: "role_id",
-})
+});
 
-const Role = mongoose.model('roles', roleSchema)
+const Role = mongoose.model("roles", roleSchema);
 
 export default Role;

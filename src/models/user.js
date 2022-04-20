@@ -3,8 +3,8 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Task from "../models/task.js";
-import welcomeMail  from "../emails/welcome-email.js";
-import resetPasswordMail  from "../emails/rest-password-email.js";
+import welcomeMail from "../emails/welcome-email.js";
+import resetPasswordMail from "../emails/rest-password-email.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -42,12 +42,12 @@ const userSchema = new mongoose.Schema(
     },
     isCompanyOwner: {
       type: Boolean,
-      default: false
+      default: false,
     },
     company_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "Company"
+      ref: "Company",
     },
     confirmed: {
       type: Boolean,
@@ -57,9 +57,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: undefined,
     },
-    user_roles: [{
-      type: mongoose.Schema.Types.ObjectId,
-    }],
+    user_roles: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Role",
+      },
+    ],
     tokens: [
       {
         token: {
@@ -125,25 +128,20 @@ userSchema.virtual("payments", {
   foreignField: "createdBy",
 });
 
-userSchema.virtual('roles', {
+userSchema.virtual("roles", {
   ref: "Role",
   localField: "_id",
   foreignField: "createdBy",
 });
 
-userSchema.virtual('permissions', {
+userSchema.virtual("permissions", {
   ref: "Permission",
   localField: "_id",
   foreignField: "createdBy",
 });
 
-// userSchema.virtual("companies", {
-//   ref: "Company",
-//   localField: "_id",
-//   foreignField: "owner",
-// });
 
-userSchema.methods.toJSON = function (params) {
+userSchema.methods.toJSON = function () {
   const user = this.toObject();
 
   const { tokens, password, ...userPublicData } = user;
@@ -170,9 +168,13 @@ userSchema.statics.findByCredentials = async (email, password) => {
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
 
-  const token = jwt.sign({ _id: user._id.toString(), company_id: user.company_id.toString() }, process.env.JWT_SECRET, {
-    expiresIn: "1 days",
-  });
+  const token = jwt.sign(
+    { _id: user._id.toString(), company_id: user.company_id.toString() },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1 days",
+    }
+  );
 
   user.tokens = [...user.tokens, { token }];
 
