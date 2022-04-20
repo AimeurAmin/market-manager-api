@@ -1,6 +1,7 @@
 import Client from "../models/client.js";
 import Company from "../models/company.js";
 import validateFields from "../helpers/validateFields.js";
+import mongoose from 'mongoose';
 
 import jwt from "jsonwebtoken";
 
@@ -53,6 +54,10 @@ export const addClient = async(req, res) => {
 }
 
 export const updateClientInfo = async(req, res) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send(`No Client with id: ${id}`);
+
     const allowedUpdates = ["firstName", "lastName", "phone", "address", "limit_credit", "payment_dead_line"];
     const requiredFields = [];
 
@@ -66,7 +71,7 @@ export const updateClientInfo = async(req, res) => {
         });
 
     try {
-        const client = await Client.findOneAndUpdate({ _id: req.params.id, createdBy: req.user._id }, req.body, { new: true, runValidators: true });
+        const client = await Client.findOneAndUpdate({ id, createdBy: req.user._id }, req.body, { new: true, runValidators: true });
         if (!client) return res.status(404).send({ error: `client not found! `, status: 404 });
         res.send(client);
     } catch (error) {
@@ -75,5 +80,44 @@ export const updateClientInfo = async(req, res) => {
 }
 
 export const deleteClient = async(req, res) => {
+    try {
+        const client = await Client.findOneAndDelete({
+            _id: req.params.id,
+            owner: req.user._id
+        });
+
+        if (!client) {
+            return res.status(404).send({ error: `client not found! `, status: 404 });
+        }
+
+        res.send(client);
+    } catch (error) {
+        res.status(400).send(error)
+    }
 
 }
+
+// export const countClients = async(req, res) => {
+//     try {
+//         let count = await Client.countDocuments();
+//         res.send({ count });
+//     } catch (error) {
+//         res.status(400).send(error);
+//     }
+// };
+// 
+// 
+// export const getCompanyClients = async(req, res) => {
+//     const token = req.token;
+//     console.log('token');
+//     console.log(token);
+//     try {
+//         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+//         const company = await Company.findById(decodedToken.company).populate("clients");
+// 
+//         res.send(company);
+// 
+//     } catch (error) {
+//         res.status(400).send('err', error)
+//     }
+// }
