@@ -6,6 +6,12 @@ import Company from '../models/company.js';
 
 const router = express.Router();
 
+// COUNT ALL CLIENT
+router.get("/count", countClients);
+
+// GET ALL CLIENT OF COMPANY
+router.get("/companyClients", auth, getCompanyClients);
+
 // GET ALL CLIENTS
 router.get("/", auth, getAllClients);
 
@@ -21,10 +27,5 @@ router.patch("/:id", auth, updateClientInfo);
 // DELETE CLIENT 
 router.delete("/:id", auth, deleteClient);
 
-// COUNT ALL CLIENT
-router.get("/count", countClients);
-
-// GET ALL CLIENT OF COMPANY
-router.get("/companyClients", auth, getCompanyClients);
 
 export default router;

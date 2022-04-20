@@ -55,7 +55,6 @@ export const addClient = async(req, res) => {
 
 export const updateClientInfo = async(req, res) => {
     const { id } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send(`No Client with id: ${id}`);
 
     const allowedUpdates = ["firstName", "lastName", "phone", "address", "limit_credit", "payment_dead_line"];
@@ -97,27 +96,24 @@ export const deleteClient = async(req, res) => {
 
 }
 
-// export const countClients = async(req, res) => {
-//     try {
-//         let count = await Client.countDocuments();
-//         res.send({ count });
-//     } catch (error) {
-//         res.status(400).send(error);
-//     }
-// };
-// 
-// 
-// export const getCompanyClients = async(req, res) => {
-//     const token = req.token;
-//     console.log('token');
-//     console.log(token);
-//     try {
-//         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-//         const company = await Company.findById(decodedToken.company).populate("clients");
-// 
-//         res.send(company);
-// 
-//     } catch (error) {
-//         res.status(400).send('err', error)
-//     }
-// }
+export const countClients = async(req, res) => {
+    try {
+        let count = await Client.countDocuments();
+        res.send({ count });
+    } catch (error) {
+        res.status(400).send(error);
+    }
+};
+
+
+export const getCompanyClients = async(req, res) => {
+    const token = req.token;
+    try {
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        const company = await Company.findById(decodedToken.company).populate("clients");
+        res.send({ clients: company.clients });
+
+    } catch (error) {
+        res.status(400).send(error);
+    }
+}
