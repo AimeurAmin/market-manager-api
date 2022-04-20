@@ -1,10 +1,6 @@
 import mongoose from 'mongoose';
 
 const permissionSchema = mongoose.Schema({
-  permit_name: {
-    type: String,
-    required: true,
-  },
   slug: {
     type: String,
     required: true,
