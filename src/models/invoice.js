@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const invoiceSchema = mongoose.Schema({
   client_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
+    ref: "Product",
     default: undefined,
   },
   total: {
@@ -11,29 +11,27 @@ const invoiceSchema = mongoose.Schema({
     default: 0,
   },
   createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     default: undefined,
-  
   },
   company_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Company',
+    ref: "Company",
     default: undefined,
-  
   },
   timestamps: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 
-productSchema.virtual('sales', {
-    ref: 'Sale',
-    localField: '_id',
-    foreignField: 'invoice_id',
+invoiceSchema.virtual("sales", {
+  ref: "Sale",
+  localField: "_id",
+  foreignField: "invoice_id",
 });
 
-const Invoice = mongoose.model('invoices', invoiceSchema)
+const Invoice = mongoose.model("invoices", invoiceSchema);
 
 export default Invoice;
