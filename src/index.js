@@ -24,12 +24,12 @@ const port = process.env.PORT;
 app.use(taskRouter);
 app.use(userRouter);
 
-app.use('/clients', clientsRoutes);
+app.use("/clients", clientsRoutes);
 
 
 
 app.listen(port, () => {
-  console.log("Server is up on port " + port);
+    console.log("Server is up on port " + port);
 });
 
 // const token = jwt.sign({ _id: "123abc" }, "mysecrethere", {
@@ -41,17 +41,17 @@ app.listen(port, () => {
 // console.log(data);
 
 // const main = async () => {
-  // const task = await Task.findById("6259fba6e61f94899adcce45");
-  // await task.populate("owner");
-  // console.log(task);
+// const task = await Task.findById("6259fba6e61f94899adcce45");
+// await task.populate("owner");
+// console.log(task);
 
-  // const user = await User.findById("6259fb90e61f94899adcce3c")
-  //   .populate([{ path: "tasks", select: ["title", "description"] }])
-  //   .exec();
-  // // await user.populate([{path: 'tasks'}]).exec();
-  // console.log("user");
-  // console.log(user.tasks);
-  // console.log({ ...user._doc, tasks: [...user.tasks] });
+// const user = await User.findById("6259fb90e61f94899adcce3c")
+//   .populate([{ path: "tasks", select: ["title", "description"] }])
+//   .exec();
+// // await user.populate([{path: 'tasks'}]).exec();
+// console.log("user");
+// console.log(user.tasks);
+// console.log({ ...user._doc, tasks: [...user.tasks] });
 // };
 
 // main();
