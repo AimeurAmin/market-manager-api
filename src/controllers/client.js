@@ -1,5 +1,7 @@
 import Client from "../models/client.js";
-import Company from "../models/company.js"
+import Company from "../models/company.js";
+import validateFields from "../helpers/validateFields.js";
+
 import jwt from "jsonwebtoken";
 
 import dotenv from "dotenv";
@@ -50,9 +52,28 @@ export const addClient = async(req, res) => {
     }
 }
 
-export const updateInfoClient = async(req, res) => {
+export const updateClientInfo = async(req, res) => {
+    const allowedUpdates = ["firstName", "lastName", "phone", "address", "limit_credit", "payment_dead_line"];
+    const requiredFields = [];
 
+    const { invalidFields, missingFields } = validateFields(allowedUpdates, requiredFields, req.body);
+
+    if (invalidFields.length > 0)
+        return res.status(400).send({
+            error: `the following fields are invalid: ${invalidFields} | and the following fields are required: ${missingFields}`,
+            invalidFields,
+            missingFields
+        });
+
+    try {
+        const client = await Client.findOneAndUpdate({ _id: req.params.id, createdBy: req.user._id }, req.body, { new: true, runValidators: true });
+        if (!client) return res.status(404).send({ error: `client not found! `, status: 404 });
+        res.send(client);
+    } catch (error) {
+        res.status(400).send(error);
+    }
 }
+
 export const deleteClient = async(req, res) => {
 
 }

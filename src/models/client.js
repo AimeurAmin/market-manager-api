@@ -27,8 +27,8 @@ const clientSchema = mongoose.Schema({
         default: 0
     },
     payment_dead_line: {
-        type: Number,
-        default: 0,
+        type: Date,
+        default: () => new Date(+new Date() + 30 * 24 * 60 * 60 * 1000)
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,

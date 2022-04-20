@@ -67,7 +67,7 @@ companySchema.virtual("invoices", {
     foreignField: "company",
 });
 
-companySchema.virtual("CompanyClients", {
+companySchema.virtual("clientss", {
     ref: "Client",
     localField: "_id",
     foreignField: "company",
