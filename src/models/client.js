@@ -52,13 +52,13 @@ const clientSchema = mongoose.Schema({
   },
 });
 
-productSchema.virtual('invoices', {
+clientSchema.virtual('invoices', {
     ref: 'Invoice',
     localField: '_id',
     foreignField: 'client_id',
 });
 
-productSchema.virtual('payments', {
+clientSchema.virtual('payments', {
     ref: 'Payment',
     localField: '_id',
     foreignField: 'client_id',
