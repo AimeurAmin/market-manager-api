@@ -30,7 +30,7 @@ const companySchema = new mongoose.Schema(
 companySchema.virtual("users", {
   ref: "User",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("tasks", {
@@ -73,7 +73,7 @@ companySchema.virtual("invoices", {
 companySchema.virtual("clients", {
   ref: "Client",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("payments", {

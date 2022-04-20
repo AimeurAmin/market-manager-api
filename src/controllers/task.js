@@ -5,7 +5,7 @@ export const addTask = async (req, res) => {
   const task = new Task({
     ...req.body,
     owner: req.user._id,
-    company: req.user.company_id
+    company: req.user.company
   });
   try {
     await task.save();

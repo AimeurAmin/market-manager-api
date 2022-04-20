@@ -4,19 +4,19 @@ import auth from '../middleware/auth.js';
 
 const router = express.Router();
 
-// get all client from our dataBase
+// GET ALL CLIENTS
 router.get('/', auth, getAllClients);
 
-// get specific client from our DataBase
+// GET CLIENT BY ID 
 router.get('/:id', auth, getClientById);
 
-// add new Client to take credit 
+// ADD CLIENT 
 router.post('/', auth, addClient);
 
-// edit info of client 
+// UPDATE CLIENT INFO
 router.patch('/:id', auth, updateInfoClient);
 
-// deleteClientWithRemaining-amount equal 0
+// DELETE CLIENT 
 router.delete('/:id', auth, deleteClient);
 
 export default router;
