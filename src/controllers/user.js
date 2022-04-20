@@ -2,6 +2,7 @@
 import bcrypt from "bcryptjs";
 import Company from "../models/company.js";
 import User from "../models/user.js";
+import jwt from "jsonwebtoken";
 
 export const profile = async (req, res) => {
   const user = await req.user.populate('company');
@@ -203,7 +204,7 @@ export const signup = async (req, res) => {
       });
       await company.save();
       user.isCompanyOwner = true;
-      user.company_id = company._id;
+      user.company = company._id;
     }
     await user.save();
     const token = await user.generateAuthToken();

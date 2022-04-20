@@ -15,7 +15,7 @@ const invoiceSchema = mongoose.Schema({
     ref: "User",
     default: undefined,
   },
-  company_id: {
+  company: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
     default: undefined,

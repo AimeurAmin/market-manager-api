@@ -30,7 +30,7 @@ const companySchema = new mongoose.Schema(
 companySchema.virtual("users", {
   ref: "User",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("tasks", {
@@ -43,55 +43,55 @@ companySchema.virtual("tasks", {
 companySchema.virtual("barcodes", {
   ref: "Barcode",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("products", {
   ref: "Product",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("stores", {
   ref: "Stock",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("sales", {
   ref: "Sale",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("invoices", {
   ref: "Invoice",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("clients", {
   ref: "Client",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("payments", {
   ref: "Payment",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("roles", {
   ref: "Role",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 companySchema.virtual("permissions", {
   ref: "Permission",
   localField: "_id",
-  foreignField: "company_id",
+  foreignField: "company",
 });
 
 

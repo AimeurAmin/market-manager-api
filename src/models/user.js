@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    company_id: {
+    company: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "Company",
@@ -169,7 +169,7 @@ userSchema.methods.generateAuthToken = async function () {
   const user = this;
 
   const token = jwt.sign(
-    { _id: user._id.toString(), company_id: user.company_id.toString() },
+    { _id: user._id.toString(), company: user.company.toString() },
     process.env.JWT_SECRET,
     {
       expiresIn: "1 days",

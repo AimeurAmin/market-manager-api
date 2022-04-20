@@ -38,7 +38,7 @@ router.delete("/tasks/:id", auth, deleteTaskById);
 router.get("/campanyTasks", auth, async (req, res) => {
   const token = req.token
   const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-  const company = await Company.findById(decodedToken.company_id).populate("tasks");
+  const company = await Company.findById(decodedToken.company).populate("tasks");
   res.send({ tasks: company.tasks });
 })
 
