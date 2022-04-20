@@ -1,8 +1,8 @@
 "use strict";
-const nodemailer = require("nodemailer");
-var hbs = require("nodemailer-express-handlebars");
-const path = require("path");
-const configureTransporter = require("./configureTransporter");
+import nodemailer from "nodemailer";
+import hbs from "nodemailer-express-handlebars";
+import path from "path";
+import configureTransporter from "./configureTransporter.js";
 
 const welcomeMail = async (email, name, token) => {
   let transporter = configureTransporter()
@@ -18,8 +18,6 @@ const welcomeMail = async (email, name, token) => {
   };
 
   transporter.use("compile", hbs(handlebarOptions));
-  console.log('token from mail sender');
-  console.log(token);
   let info = await transporter.sendMail({
     from: 'Awad', // sender address
     to: email, // list of receivers
@@ -37,4 +35,4 @@ const welcomeMail = async (email, name, token) => {
   
 }
 
-module.exports = {welcomeMail};
+export default welcomeMail;

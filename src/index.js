@@ -1,16 +1,32 @@
-const express = require("express");
-const taskRouter = require("./routes/task");
-const userRouter = require("./routes/user");
-require("./db/mongoose");
-require('dotenv').config()
+import express from "express";
+import bodyParser from "body-parser";
 
+import taskRouter from "./routes/task.js";
+import userRouter from "./routes/user.js";
+import clientsRoutes from "./routes/clients.js";
+
+import dotenv from "dotenv";
+import cors from "cors";
+
+import "./db/mongoose.js";
+
+dotenv.config();
 const app = express();
-const port = process.env.PORT;
 
 app.use(express.json());
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+
+app.use(cors());
+
+const port = process.env.PORT;
 
 app.use(taskRouter);
 app.use(userRouter);
+
+app.use('/clients', clientsRoutes);
+
+
 
 app.listen(port, () => {
   console.log("Server is up on port " + port);

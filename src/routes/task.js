@@ -1,5 +1,7 @@
-const express = require("express");
-const {
+import  express from "express";
+import  jwt from 'jsonwebtoken';
+import  Company from "../models/company.js"
+import  {
   addTask,
   countTasks,
   userTasks,
@@ -7,8 +9,9 @@ const {
   taskById,
   updateTaskById,
   deleteTaskById,
-} = require("../controllers/task");
-const auth = require("../middleware/auth");
+} from "../controllers/task.js";
+import  auth from "../middleware/auth.js";
+
 const router = express.Router();
 
 // ADD NEW TASK
@@ -32,4 +35,11 @@ router.patch("/tasks/:id", auth, updateTaskById);
 // DELETE TASK
 router.delete("/tasks/:id", auth, deleteTaskById);
 
-module.exports = router;
+router.get("/campanyTasks", auth, async (req, res) => {
+  const token = req.token
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  const company = await Company.findById(decodedToken.company_id).populate("tasks");
+  res.send({ tasks: company.tasks });
+})
+
+export default router;

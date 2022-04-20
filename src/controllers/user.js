@@ -1,12 +1,14 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
 
-const profile = async (req, res) => {
-  res.send(req.user);
+import bcrypt from "bcryptjs";
+import Company from "../models/company.js";
+import User from "../models/user.js";
+
+export const profile = async (req, res) => {
+  const user = await req.user.populate('company');
+  res.send(user);
 };
 
-const updatePassword = async (req, res) => {
+export const updatePassword = async (req, res) => {
   const allowedUpdates = ["password", "confirmPassword", "newPassword"];
   const updateFields = Object.keys(req.body);
 
@@ -58,7 +60,7 @@ const updatePassword = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res) => {
+export const updateProfile = async (req, res) => {
   const allowedUpdates = ["name", "email", "age"];
   const updateFields = Object.keys(req.body);
 
@@ -94,7 +96,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-const deleteAccount = async (req, res) => {
+export const deleteAccount = async (req, res) => {
   try {
     const validPass = await bcrypt.compare(
       req.body?.password || "",
@@ -120,7 +122,7 @@ const deleteAccount = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
+export const logout = async (req, res) => {
   try {
     req.user.tokens = req.user.tokens.filter(
       (token) => token.token !== req.token
@@ -133,7 +135,7 @@ const logout = async (req, res) => {
   }
 };
 
-const logoutAllSessions = async (req, res) => {
+export const logoutAllSessions = async (req, res) => {
   try {
     const validPass = await bcrypt.compare(
       req.body?.password,
@@ -156,13 +158,13 @@ const logoutAllSessions = async (req, res) => {
   }
 };
 
-const uploadAvatar = async (req, res) => {
+export const uploadAvatar = async (req, res) => {
   req.user.avatar = req.file.buffer;
   await req.user.save();
   res.send();
 };
 
-const getAvatarByUserId = async (req, res) => {
+export const getAvatarByUserId = async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) {
     throw new Error("User not found");
@@ -176,20 +178,33 @@ const getAvatarByUserId = async (req, res) => {
   res.send(user.avatar);
 };
 
-const deleteAvatar = async (req, res) => {
+export const deleteAvatar = async (req, res) => {
   req.user.avatar = undefined;
   await req.user.save();
   res.send("Avatar cleared");
 };
 
-const errorController = (error, req, res, next) => {
+export const errorController = (error, req, res, next) => {
   res.status(400).send({ error: error.message, status: 400 });
 };
 
-const signup = async (req, res) => {
-  const user = new User(req.body);
+export const signup = async (req, res) => {
+  const { companyName, companyDescription, companyAddress, ...userInfo } =
+    req.body;
+  const user = new User({ ...userInfo });
 
   try {
+    if (req.body.companyName) {
+      const company = new Company({
+        name: companyName,
+        description: companyDescription,
+        address: companyAddress,
+        owner: user._id,
+      });
+      await company.save();
+      user.isCompanyOwner = true;
+      user.company_id = company._id;
+    }
     await user.save();
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
@@ -198,7 +213,7 @@ const signup = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findByCredentials(email, password);
@@ -213,7 +228,7 @@ const login = async (req, res) => {
   }
 };
 
-const resetPassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
   const allowedUpdates = ["token", "password", "confirmPassword"];
   const updateFields = Object.keys(req.body);
 
@@ -256,7 +271,7 @@ const resetPassword = async (req, res) => {
   res.send("your password has been updated.");
 };
 
-const askForNewPassword = async (req, res) => {
+export const askForNewPassword = async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -277,7 +292,7 @@ const askForNewPassword = async (req, res) => {
   }
 };
 
-const reConfirmMyAccount = async (req, res) => {
+export const reConfirmMyAccount = async (req, res) => {
   const { email } = req.body;
 
   const user = await User.findOne({ email });
@@ -292,7 +307,7 @@ const reConfirmMyAccount = async (req, res) => {
   res.send("Please verify your Mail-box to confirm your account!");
 };
 
-const confirmAccount = async (req, res) => {
+export const confirmAccount = async (req, res) => {
   const token = req.query.token;
   if (!token) {
     return res.status(400).send("You are not allowed to execute this action!");
@@ -312,23 +327,4 @@ const confirmAccount = async (req, res) => {
   user.tokens = [];
   await user.save();
   res.send("your account has been confirmed!");
-};
-
-module.exports = {
-  profile,
-  updatePassword,
-  updateProfile,
-  deleteAccount,
-  logout,
-  logoutAllSessions,
-  uploadAvatar,
-  deleteAvatar,
-  getAvatarByUserId,
-  signup,
-  login,
-  resetPassword,
-  askForNewPassword,
-  reConfirmMyAccount,
-  confirmAccount,
-  errorController,
 };

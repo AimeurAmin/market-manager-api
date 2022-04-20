@@ -1,10 +1,11 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const Task = require("./task");
-const { welcomeMail } = require("../emails/welcome-email");
-const { resetPasswordMail } = require("../emails/rest-password-email");
+import mongoose from "mongoose";
+import validator from "validator";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import Task from "../models/task.js";
+import welcomeMail  from "../emails/welcome-email.js";
+import resetPasswordMail  from "../emails/rest-password-email.js";
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -39,6 +40,15 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
+    isCompanyOwner: {
+      type: Boolean,
+      default: false
+    },
+    company_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Company"
+    },
     confirmed: {
       type: Boolean,
       default: false,
@@ -47,6 +57,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: undefined,
     },
+    roles_user: [{
+      type: mongoose.Schema.Types.ObjectId,
+    }],
     tokens: [
       {
         token: {
@@ -69,6 +82,66 @@ userSchema.virtual("tasks", {
   localField: "_id",
   foreignField: "owner",
 });
+
+userSchema.virtual("barcodes", {
+  ref: "Barcode",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("products", {
+  ref: "Product",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("stores", {
+  ref: "Stock",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("sales", {
+  ref: "Sales",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("invoices", {
+  ref: "Invoice",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("clients", {
+  ref: "Client",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("payments", {
+  ref: "Payment",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual('roles', {
+  ref: "Role",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual('permissions', {
+  ref: "Permission",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+// userSchema.virtual("companies", {
+//   ref: "Company",
+//   localField: "_id",
+//   foreignField: "owner",
+// });
 
 userSchema.methods.toJSON = function (params) {
   const user = this.toObject();
@@ -97,7 +170,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
 
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ _id: user._id.toString(), company_id: user.company_id.toString() }, process.env.JWT_SECRET, {
     expiresIn: "1 days",
   });
 
@@ -121,7 +194,6 @@ userSchema.post("save", async function (user) {
   if (user?.tokens[0]?.token && !user.confirmed) {
     welcomeMail(user.email, user.name, user.tokens[0]?.token);
   } else if (user.confirmed && user.resetToken) {
-    console.log("rani b3atht");
     resetPasswordMail(user.email, user.name, user.resetToken);
   }
 });
@@ -144,4 +216,4 @@ userSchema.post(/findOneAndDelete/, async function () {
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = User;
+export default User;

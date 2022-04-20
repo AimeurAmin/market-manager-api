@@ -1,9 +1,11 @@
-const Task = require("../models/task");
+import validateFields from "../helpers/validateFields.js";
+import Task from "../models/task.js";
 
-const addTask = async (req, res) => {
+export const addTask = async (req, res) => {
   const task = new Task({
     ...req.body,
     owner: req.user._id,
+    company: req.user.company_id
   });
   try {
     await task.save();
@@ -13,7 +15,7 @@ const addTask = async (req, res) => {
   }
 };
 
-const countTasks = async (req, res) => {
+export const countTasks = async (req, res) => {
   try {
     let count = await Task.countDocuments();
     res.send({ count });
@@ -22,7 +24,7 @@ const countTasks = async (req, res) => {
   }
 };
 
-const userTasks = async (req, res) => {
+export const userTasks = async (req, res) => {
   const match = {};
   if (req.query.done) {
     match.done =
@@ -52,7 +54,7 @@ const userTasks = async (req, res) => {
   }
 };
 
-const allTasks = async (req, res) => {
+export const allTasks = async (req, res) => {
   const sort = {}
   if (req.query.sortBy) {
     const parts = req.query.sortBy.split(':')
@@ -71,7 +73,7 @@ const allTasks = async (req, res) => {
   }
 };
 
-const taskById = async (req, res) => {
+export const taskById = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
 
@@ -81,20 +83,19 @@ const taskById = async (req, res) => {
   }
 }
 
-const updateTaskById = async (req, res) => {
+export const updateTaskById = async (req, res) => {
   const allowedUpdates = ["title", "description", "done"];
-  const updateFields = Object.keys(req.body);
-
-  const invalidFields = updateFields.filter(
-    (field) => !allowedUpdates.includes(field)
-  );
-
-  if (invalidFields.length > 0) {
-    return res.status(400).send({
-      error: `the following fields are invalid: ${[...invalidFields]}`,
-      invalidFields,
-    });
-  }
+  const requiredFields = ["done"]
+  
+  const {invalidFields, missingFields} = validateFields(allowedUpdates, requiredFields, req.body)
+  
+  if (invalidFields.length > 0)
+  return res.status(400).send({
+    error: `the following fields are invalid: ${invalidFields} | and the following fields are required: ${missingFields}`,
+    invalidFields,
+    missingFields
+  });
+  
 
   try {
     const task = await Task.findOneAndUpdate(
@@ -116,7 +117,7 @@ const updateTaskById = async (req, res) => {
   }
 }
 
-const deleteTaskById = async (req, res) => {
+export const deleteTaskById = async (req, res) => {
   try {
     const task = await Task.findOneAndDelete({
       _id: req.params.id,
@@ -136,12 +137,3 @@ const deleteTaskById = async (req, res) => {
   }
 }
 
-module.exports = {
-  addTask,
-  countTasks,
-  userTasks,
-  allTasks,
-  taskById,
-  updateTaskById,
-  deleteTaskById
-};
