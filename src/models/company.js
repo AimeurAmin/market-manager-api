@@ -67,7 +67,7 @@ companySchema.virtual("invoices", {
     foreignField: "company",
 });
 
-companySchema.virtual("clientss", {
+companySchema.virtual("clients", {
     ref: "Client",
     localField: "_id",
     foreignField: "company",
@@ -92,6 +92,6 @@ companySchema.virtual("permissions", {
 });
 
 
-const Company = mongoose.model("Companies", companySchema);
+const Company = mongoose.model("Company", companySchema);
 
 export default Company;

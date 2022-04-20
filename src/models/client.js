@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const clientSchema = mongoose.Schema({
     lastName: {
@@ -33,7 +33,7 @@ const clientSchema = mongoose.Schema({
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User'
+        ref: "User",
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
@@ -46,18 +46,18 @@ const clientSchema = mongoose.Schema({
     },
 });
 
-clientSchema.virtual('invoices', {
-    ref: 'Invoice',
-    localField: '_id',
-    foreignField: 'client_id',
+clientSchema.virtual("invoices", {
+    ref: "Invoice",
+    localField: "_id",
+    foreignField: "client_id",
 });
 
-clientSchema.virtual('payments', {
-    ref: 'Payment',
-    localField: '_id',
-    foreignField: 'client_id',
+clientSchema.virtual("payments", {
+    ref: "Payment",
+    localField: "_id",
+    foreignField: "client_id",
 });
 
-const Client = mongoose.model('clients', clientSchema);
+const Client = mongoose.model("Client", clientSchema);
 
 export default Client;
