@@ -16,7 +16,7 @@ const barcodeSchema = mongoose.Schema({
     required: true,
     ref: 'User'
   },
-  company_id: {
+  company: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'Company'

@@ -96,7 +96,7 @@ router.get("/reConfirmMyAccount", reConfirmMyAccount);
 // LIST OF USERS RELATED TO CURRENT COMPANY
 router.get("/myCompanyUsers", auth, async (req, res) => {
   const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
-  const company = await Company.findById(decodedToken.company_id).populate(
+  const company = await Company.findById(decodedToken.company).populate(
     "users"
   );
   res.send({ users: company.users });

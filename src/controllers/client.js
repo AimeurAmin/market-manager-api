@@ -3,9 +3,9 @@ export const getAllClients = async (req, res) => {
   const client = new Client({
     ...req.body,
     owner: req.user._id,
-    company_id: req.user.company._id
+    company: req.user.company._id
   });
-  
+
 }
 
 export const getClientById = async (req, res) => {
