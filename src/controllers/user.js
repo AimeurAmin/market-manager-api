@@ -1,13 +1,13 @@
-const bcrypt = require("bcryptjs");
-const Company = require("../models/company");
-const User = require("../models/user");
+import bcrypt from "bcryptjs";
+import Company from "../models/company.js";
+import User from "../models/user.js";
 
-const profile = async (req, res) => {
+export const profile = async (req, res) => {
   const user = await req.user.populate('company');
   res.send(user);
 };
 
-const updatePassword = async (req, res) => {
+export const updatePassword = async (req, res) => {
   const allowedUpdates = ["password", "confirmPassword", "newPassword"];
   const updateFields = Object.keys(req.body);
 
@@ -59,7 +59,7 @@ const updatePassword = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res) => {
+export const updateProfile = async (req, res) => {
   const allowedUpdates = ["name", "email", "age"];
   const updateFields = Object.keys(req.body);
 
@@ -95,7 +95,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-const deleteAccount = async (req, res) => {
+export const deleteAccount = async (req, res) => {
   try {
     const validPass = await bcrypt.compare(
       req.body?.password || "",
@@ -121,7 +121,7 @@ const deleteAccount = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
+export const logout = async (req, res) => {
   try {
     req.user.tokens = req.user.tokens.filter(
       (token) => token.token !== req.token
@@ -134,7 +134,7 @@ const logout = async (req, res) => {
   }
 };
 
-const logoutAllSessions = async (req, res) => {
+export const logoutAllSessions = async (req, res) => {
   try {
     const validPass = await bcrypt.compare(
       req.body?.password,
@@ -157,13 +157,13 @@ const logoutAllSessions = async (req, res) => {
   }
 };
 
-const uploadAvatar = async (req, res) => {
+export const uploadAvatar = async (req, res) => {
   req.user.avatar = req.file.buffer;
   await req.user.save();
   res.send();
 };
 
-const getAvatarByUserId = async (req, res) => {
+export const getAvatarByUserId = async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) {
     throw new Error("User not found");
@@ -177,17 +177,17 @@ const getAvatarByUserId = async (req, res) => {
   res.send(user.avatar);
 };
 
-const deleteAvatar = async (req, res) => {
+export const deleteAvatar = async (req, res) => {
   req.user.avatar = undefined;
   await req.user.save();
   res.send("Avatar cleared");
 };
 
-const errorController = (error, req, res, next) => {
+export const errorController = (error, req, res, next) => {
   res.status(400).send({ error: error.message, status: 400 });
 };
 
-const signup = async (req, res) => {
+export const signup = async (req, res) => {
   const { companyName, companyDescription, companyAddress, ...userInfo } =
     req.body;
   const user = new User({ ...userInfo });
@@ -212,7 +212,7 @@ const signup = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findByCredentials(email, password);
@@ -225,19 +225,4 @@ const login = async (req, res) => {
   } catch (error) {
     return res.status(400).send("Unable to login - " + error);
   }
-};
-
-module.exports = {
-  profile,
-  updatePassword,
-  updateProfile,
-  deleteAccount,
-  logout,
-  logoutAllSessions,
-  uploadAvatar,
-  deleteAvatar,
-  getAvatarByUserId,
-  signup,
-  login,
-  errorController,
 };

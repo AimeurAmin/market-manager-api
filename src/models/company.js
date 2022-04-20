@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const companySchema = new mongoose.Schema(
   {
@@ -39,6 +39,62 @@ companySchema.virtual("tasks", {
   foreignField: "company",
 });
 
-const Company = mongoose.model("Company", companySchema);
 
-module.exports = Company;
+companySchema.virtual("barcodes", {
+  ref: "Barcode",
+  localField: "_id",
+  foreignField: "company_id",
+});
+
+companySchema.virtual("products", {
+  ref: "Product",
+  localField: "_id",
+  foreignField: "company_id",
+});
+
+companySchema.virtual("stores", {
+  ref: "Stock",
+  localField: "_id",
+  foreignField: "company_id",
+});
+
+companySchema.virtual("sales", {
+  ref: "Sale",
+  localField: "_id",
+  foreignField: "company_id",
+});
+
+companySchema.virtual("invoices", {
+  ref: "Invoice",
+  localField: "_id",
+  foreignField: "company_id",
+});
+
+companySchema.virtual("clients", {
+  ref: "Client",
+  localField: "_id",
+  foreignField: "company_id",
+});
+
+companySchema.virtual("payments", {
+  ref: "Payment",
+  localField: "_id",
+  foreignField: "company_id",
+});
+
+companySchema.virtual("roles", {
+  ref: "Role",
+  localField: "_id",
+  foreignField: "company_id",
+});
+
+companySchema.virtual("permissions", {
+  ref: "Permission",
+  localField: "_id",
+  foreignField: "company_id",
+});
+
+
+const Company = mongoose.model("Companies", companySchema);
+
+export default Company;

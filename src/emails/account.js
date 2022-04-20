@@ -1,7 +1,7 @@
 "use strict";
-const nodemailer = require("nodemailer");
-var hbs = require("nodemailer-express-handlebars");
-const path = require("path");
+import  nodemailer from "nodemailer";
+import  hbs from "nodemailer-express-handlebars";
+import  path from "path";
 
 // async..await is not allowed in global scope, must use a wrapper
 async function main() {

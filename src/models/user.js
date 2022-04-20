@@ -1,10 +1,11 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const Task = require("./task");
-const { welcomeMail } = require("../emails/welcome-email");
-const { resetPasswordMail } = require("../emails/rest-password-email");
+import mongoose from "mongoose";
+import validator from "validator";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import Task from "../models/task.js";
+import welcomeMail  from "../emails/welcome-email.js";
+import resetPasswordMail  from "../emails/rest-password-email.js";
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -56,6 +57,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: undefined,
     },
+    roles_user: [{
+      type: mongoose.Schema.Types.ObjectId,
+    }],
     tokens: [
       {
         token: {
@@ -79,6 +83,59 @@ userSchema.virtual("tasks", {
   foreignField: "owner",
 });
 
+userSchema.virtual("barcodes", {
+  ref: "Barcode",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("products", {
+  ref: "Product",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("stores", {
+  ref: "Stock",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("sales", {
+  ref: "Sales",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("invoices", {
+  ref: "Invoice",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("clients", {
+  ref: "Client",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual("payments", {
+  ref: "Payment",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual('roles', {
+  ref: "Role",
+  localField: "_id",
+  foreignField: "createdBy",
+});
+
+userSchema.virtual('permissions', {
+  ref: "Permission",
+  localField: "_id",
+  foreignField: "createdBy",
+});
 
 // userSchema.virtual("companies", {
 //   ref: "Company",
@@ -159,4 +216,4 @@ userSchema.post(/findOneAndDelete/, async function () {
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = User;
+export default User;

@@ -13,4 +13,4 @@ const validateFields = (allowedFields, requiredFields, body) => {
   };
 };
 
-module.exports = validateFields;
+export default validateFields;

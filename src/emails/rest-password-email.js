@@ -1,8 +1,8 @@
 "use strict";
-const nodemailer = require("nodemailer");
-var hbs = require("nodemailer-express-handlebars");
-const path = require("path");
-const configureTransporter = require("./configureTransporter");
+import nodemailer from "nodemailer";
+import hbs from "nodemailer-express-handlebars";
+import path from "path";
+import configureTransporter from "./configureTransporter.js";
 
 const resetPasswordMail = async (email, name, token) => {
   let transporter = configureTransporter()
@@ -35,4 +35,4 @@ const resetPasswordMail = async (email, name, token) => {
   
 }
 
-module.exports = {resetPasswordMail};
+export default resetPasswordMail;

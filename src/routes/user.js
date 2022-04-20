@@ -1,6 +1,6 @@
-const express = require("express");
-const auth = require("../middleware/auth");
-const {
+import express from "express";
+import auth from "../middleware/auth.js";
+import {
   profile,
   updatePassword,
   updateProfile,
@@ -10,15 +10,15 @@ const {
   signup,
   login,
   uploadAvatar,
-  errorController: errorHandler,
+  errorController,
   deleteAvatar,
   getAvatarByUserId,
-} = require("../controllers/user");
-const multer = require("multer");
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
-const { welcomeMail } = require("../emails/welcome-email");
-const Company = require("../models/company");
+} from "../controllers/user.js";
+import multer from "multer";
+import jwt from "jsonwebtoken";
+import welcomeMail  from "../emails/welcome-email.js";
+import User from "../models/user.js";
+import Company from "../models/company.js";
 
 const upload = multer({
   // dest: "images", // disabled to prevent multer from saving images on any folder (heroku and such deployment platforms delete such folders)! so instead of saving the upload to a folder on the server multer just passes it through to us inside req.file
@@ -63,7 +63,7 @@ router.post(
   upload.single("avatar"),
   auth,
   uploadAvatar,
-  errorHandler
+  errorController
 );
 
 // DELETE AVATAR
@@ -188,4 +188,4 @@ router.get("/myCompanyUsers", auth, async (req, res) => {
   res.send({ company, users: company.users });
 });
 
-module.exports = router;
+export default router;
