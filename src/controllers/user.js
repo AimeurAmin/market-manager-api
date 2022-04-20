@@ -1,3 +1,4 @@
+
 import bcrypt from "bcryptjs";
 import Company from "../models/company.js";
 import User from "../models/user.js";
@@ -225,4 +226,105 @@ export const login = async (req, res) => {
   } catch (error) {
     return res.status(400).send("Unable to login - " + error);
   }
+};
+
+export const resetPassword = async (req, res) => {
+  const allowedUpdates = ["token", "password", "confirmPassword"];
+  const updateFields = Object.keys(req.body);
+
+  const validFields = updateFields.filter((field) =>
+    allowedUpdates.includes(field)
+  );
+
+  console.log("here");
+  if (validFields.length < 3) {
+    console.log("wsel");
+    return res.status(400).send({
+      error: `The following fields are not allowed: ${[...allowedUpdates]}`,
+      allowedUpdates,
+    });
+  }
+
+  const { token, password, confirmPassword } = req.body;
+
+  if (confirmPassword !== password) {
+    return res.status(400).send("Passwords does not match");
+  }
+  if (!token) {
+    return res.status(400).send("You are not allowed to execute this action!");
+  }
+
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  const user = await User.findOne({
+    _id: decodedToken._id,
+    resetToken: token,
+  });
+
+  if (!user) {
+    return res.status(400).send("You are not allowed to execute this action!");
+  }
+  user.password = password;
+  user.resetToken = undefined;
+
+  await user.save();
+
+  res.send("your password has been updated.");
+};
+
+export const askForNewPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new Error("could not find this email");
+    }
+
+    const token = await user.generateAuthToken();
+
+    user.resetToken = token;
+
+    await user.save();
+
+    res.send("An email was sent to you to update your password!");
+  } catch (error) {
+    return res.status(404).send(error);
+  }
+};
+
+export const reConfirmMyAccount = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user || !email) {
+    return res.status(400).send("Something went wrong");
+  }
+  const token = await user.generateAuthToken();
+  user.tokens = [{ token }];
+  await user.save();
+
+  res.send("Please verify your Mail-box to confirm your account!");
+};
+
+export const confirmAccount = async (req, res) => {
+  const token = req.query.token;
+  if (!token) {
+    return res.status(400).send("You are not allowed to execute this action!");
+  }
+
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+  const user = await User.findOne({
+    _id: decodedToken._id,
+    "tokens.token": token,
+  });
+
+  if (!user) {
+    return res.status(400).send("You are not allowed to execute this action!");
+  }
+  user.confirmed = true;
+  user.tokens = [];
+  await user.save();
+  res.send("your account has been confirmed!");
 };
