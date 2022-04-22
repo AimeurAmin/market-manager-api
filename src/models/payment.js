@@ -1,33 +1,67 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
+import Client from "./client.js";
 
 const paymentSchema = mongoose.Schema({
-  client_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'Client'
-  },
   amount: {
     type: Number,
     required: true,
     default: 0,
-    trim: true
+    trim: true,
+  },
+  client: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Client",
   },
   createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'User',
+    ref: "User",
   },
   company: {
-        type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'Company',
+    ref: "Company",
   },
   timestamps: {
     type: Date,
-    default: Date.now()
+    default: Date.now(),
   },
-})
+});
 
-const Payment = mongoose.model('payments', paymentSchema)
+paymentSchema.pre("save", async function (next) {
+  const payment = this;
+  if (payment.amount <= 0) {
+    throw new Error("the amount must be > 0 ");
+  }
+  const client = await Client.findById(payment.client);
+  if (client.remaining_credit === 0) {
+    throw new Error("there is no unpaid amount for this client");
+  }
+
+  if (client.remaining_credit - payment.amount < 0) {
+    throw new Error(
+      `the amount exceeded the unpaind amount, ${client.remaining_credit}`
+    );
+  }
+
+  next();
+});
+
+paymentSchema.post("save", async function (payment) {
+  const client = await Client.findById(payment.client);
+
+  client.remaining_credit = client.remaining_credit - payment.amount;
+
+  try {
+    await client.save();
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+paymentSchema.post("remove", async function (payment) {});
+
+const Payment = mongoose.model("Payment", paymentSchema);
 
 export default Payment;

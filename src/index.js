@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import taskRouter from "./routes/task.js";
 import userRouter from "./routes/user.js";
 import clientsRoutes from "./routes/clients.js";
+import paymentsRoutes from "./routes/payments.js";
 
 import dotenv from "dotenv";
 import cors from "cors";
@@ -25,11 +26,10 @@ app.use(taskRouter);
 app.use(userRouter);
 
 app.use("/clients", clientsRoutes);
-
-
+app.use("/payments", paymentsRoutes);
 
 app.listen(port, () => {
-    console.log("Server is up on port " + port);
+  console.log("Server is up on port " + port);
 });
 
 // const token = jwt.sign({ _id: "123abc" }, "mysecrethere", {

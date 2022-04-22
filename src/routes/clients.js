@@ -1,8 +1,14 @@
-import express from 'express';
-import { addClient, countClients, deleteClient, getAllClients, getClientById, getCompanyClients, updateClientInfo } from '../controllers/client.js';
-import auth from '../middleware/auth.js';
-import jwt from "jsonwebtoken";
-import Company from '../models/company.js';
+import {
+  addClient,
+  countClients,
+  deleteClient,
+  getAllClients,
+  getClientById,
+  getCompanyClients,
+  updateClientInfo,
+} from "../controllers/client.js";
+import express from "express";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -15,17 +21,16 @@ router.get("/companyClients", auth, getCompanyClients);
 // GET ALL CLIENTS
 router.get("/", auth, getAllClients);
 
-// GET CLIENT BY ID 
+// GET CLIENT BY ID
 router.get("/:id", auth, getClientById);
 
-// ADD CLIENT 
+// ADD CLIENT
 router.post("/", auth, addClient);
 
 // UPDATE CLIENT INFO
 router.patch("/:id", auth, updateClientInfo);
 
-// DELETE CLIENT 
+// DELETE CLIENT
 router.delete("/:id", auth, deleteClient);
-
 
 export default router;
