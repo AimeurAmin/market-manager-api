@@ -5,8 +5,8 @@ import User from "../models/user.js";
 import jwt from "jsonwebtoken";
 
 export const profile = async (req, res) => {
-  const user = await req.user.populate('company');
-  res.send(user);
+  // const user = await req.user.populate('company');
+  res.send(req.user);
 };
 
 export const updatePassword = async (req, res) => {
