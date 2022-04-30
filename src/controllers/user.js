@@ -246,14 +246,11 @@ export const login = async (req, res) => {
 export const resetPassword = async (req, res) => {
   const allowedUpdates = ["token", "password", "confirmPassword"];
   const updateFields = Object.keys(req.body);
-
   const validFields = updateFields.filter((field) =>
     allowedUpdates.includes(field)
   );
 
-  console.log("here");
   if (validFields.length < 3) {
-    console.log("wsel");
     return res.status(400).send({
       error: `The following fields are not allowed: ${[...allowedUpdates]}`,
       allowedUpdates,

@@ -112,7 +112,7 @@ clientSchema.post(/findOneAndUpdate/, async function (client) {
     ...client.updates,
     { ...client, updatedBy: client.lastUpdatedBy },
   ];
-  console.log(client.updates);
+
   await client.save();
 });
 

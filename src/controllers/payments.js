@@ -174,7 +174,6 @@ export const updatePaymentInfo = async (req, res) => {
         { updatedBy: req.user._id }
       ),
     ];
-    console.log(updates);
     const payment = await Payment.findOneAndUpdate(
       { _id: req.params.id, createdBy: req.user._id },
       {
