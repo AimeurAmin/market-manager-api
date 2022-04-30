@@ -35,6 +35,46 @@ const clientSchema = mongoose.Schema({
     required: true,
     ref: "User",
   },
+  lastUpdatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  updates: [
+    {
+      lastName: {
+        type: String,
+      },
+      firstName: {
+        type: String,
+      },
+      phone: {
+        type: String,
+      },
+      address: {
+        type: String,
+      },
+      limit_credit: {
+        type: Number,
+        default: 0,
+      },
+      remaining_credit: {
+        type: Number,
+        default: 0,
+      },
+      payment_dead_line: {
+        type: Date,
+        default: () => new Date(+new Date() + 30 * 24 * 60 * 60 * 1000),
+      },
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      timestamps: {
+        type: Date,
+        default: Date.now(),
+      },
+    },
+  ],
   company: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -66,6 +106,15 @@ clientSchema.virtual("payments", {
 //   }
 //   next();
 // });
+
+clientSchema.post(/findOneAndUpdate/, async function (client) {
+  client.updates = [
+    ...client.updates,
+    { ...client, updatedBy: client.lastUpdatedBy },
+  ];
+  console.log(client.updates);
+  await client.save();
+});
 
 const Client = mongoose.model("Client", clientSchema);
 

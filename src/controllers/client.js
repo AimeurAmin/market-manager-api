@@ -99,6 +99,10 @@ export const addClient = async (req, res) => {
     company: req.user.company,
   });
   try {
+    client.updates = [
+      ...client.updates,
+      { ...req.body, updatedBy: req.user._id },
+    ];
     await client.save();
     res.status(201).send(client);
   } catch (err) {
@@ -137,15 +141,16 @@ export const updateClientInfo = async (req, res) => {
 
   try {
     const client = await Client.findOneAndUpdate(
-      { _id: id, createdBy: req.user._id },
-      req.body,
+      { _id: id, company: req.user.company },
+      { ...req.body, lastUpdatedBy: req.user._id },
       { new: true, runValidators: true }
     );
-    if (!client)
+    if (!client) {
       return res.status(404).send({ error: `client not found! `, status: 404 });
+    }
     res.send(client);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send(error.message);
   }
 };
 
