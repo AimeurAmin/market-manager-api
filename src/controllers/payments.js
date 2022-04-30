@@ -166,9 +166,22 @@ export const addPayment = async (req, res) => {
 
 export const updatePaymentInfo = async (req, res) => {
   try {
+    const oldPayment = await Payment.findById(req.params.id);
+    const updates = [
+      ...oldPayment.updates,
+      Object.keys(req.body).reduce(
+        (acc, curr) => ({ ...acc, [curr]: oldPayment[curr] }),
+        { updatedBy: req.user._id }
+      ),
+    ];
+    console.log(updates);
     const payment = await Payment.findOneAndUpdate(
       { _id: req.params.id, createdBy: req.user._id },
-      req.body,
+      {
+        ...req.body,
+        updates,
+        lastUpdatedBy: req.user._id,
+      },
       { new: true, runValidators: true }
     ).populate("client");
 

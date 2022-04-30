@@ -23,6 +23,31 @@ const paymentSchema = mongoose.Schema({
     required: true,
     ref: "Company",
   },
+  lastUpdatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  updates: [
+    {
+      amount: {
+        type: Number,
+        default: 0,
+        trim: true,
+      },
+      client: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Client",
+      },
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      timestamps: {
+        type: Date,
+        default: Date.now(),
+      },
+    },
+  ],
   timestamps: {
     type: Date,
     default: Date.now(),
@@ -50,7 +75,6 @@ paymentSchema.pre("save", async function (next) {
 
 paymentSchema.post("save", async function (payment) {
   const client = await Client.findById(payment.client);
-
   client.remaining_credit = client.remaining_credit - payment.amount;
 
   try {
@@ -67,18 +91,28 @@ paymentSchema.pre(/findOneAndUpdate/, async function (next) {
     .populate("client");
   const client = docToUpdate.client;
   const newAmount = payment._update.amount;
-  if (!payment._update.client) {
-    client.remaining_credit += docToUpdate.amount - newAmount;
+  if (!payment._update.client || payment._update.client === client._id) {
+    client.remaining_credit =
+      client.remaining_credit + docToUpdate.amount - newAmount;
   } else {
     const newClient = await Client.findById(payment._update.client);
-    newClient.remaining_credit -= newAmount ? newAmount : docToUpdate.amount;
-    client.remaining_credit += docToUpdate.amount;
+    newClient.remaining_credit =
+      newClient.remaining_credit + newAmount ? newAmount : docToUpdate.amount;
+    client.remaining_credit = client.remaining_credit + docToUpdate.amount;
+
     await newClient.save();
   }
 
   await client.save();
   next();
 });
+
+// paymentSchema.post(/findOneAndUpdate/, async function (payment) {
+//   payment.updates = [
+//     ...payment.updates,
+//     { ...payment, updatedBy: payment.lastUpdatedBy },
+//   ];
+// });
 
 paymentSchema.pre("remove", async function (next) {
   const payment = this;
