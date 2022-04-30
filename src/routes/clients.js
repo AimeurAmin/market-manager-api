@@ -1,8 +1,9 @@
 import {
   addClient,
-  countClients,
+  countClientsOfCompany,
+  countClientsOfUser,
   deleteClient,
-  getAllClients,
+  getAllClientsOfUser,
   getClientById,
   getCompanyClients,
   updateClientInfo,
@@ -12,14 +13,17 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-// COUNT ALL CLIENT
-router.get("/count", countClients);
+// COUNT ALL CLIENT OF COMPANY
+router.get("/countClientsOfCompany", auth, countClientsOfCompany);
+
+// COUNT ALL CLIENT OF SPECIFIC USER
+router.get("/countClientsOfUser", auth, countClientsOfUser);
 
 // GET ALL CLIENT OF COMPANY
 router.get("/companyClients", auth, getCompanyClients);
 
-// GET ALL CLIENTS
-router.get("/", auth, getAllClients);
+// GET ALL CLIENTS OF USER
+router.get("/userClients", auth, getAllClientsOfUser);
 
 // GET CLIENT BY ID
 router.get("/:id", auth, getClientById);

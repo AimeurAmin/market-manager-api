@@ -1,22 +1,17 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const stockSchema = mongoose.Schema({
-  product_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'Product'
-  },
   purchase_price: {
     type: Number,
-    required: true
+    required: true,
   },
   selling_price: {
     type: Number,
-    required: true
+    required: true,
   },
   stock_qty: {
     type: Number,
-    required: true
+    required: true,
   },
   initial_qty: {
     type: Number,
@@ -26,32 +21,35 @@ const stockSchema = mongoose.Schema({
   },
   expiry_date: {
     type: Date,
-    default: null
+    default: null,
+  },
+  product: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Product",
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'User'
+    ref: "User",
   },
   company: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'Company'
+    ref: "Company",
   },
   timestamps: {
     type: Date,
     default: Date.now(),
-  }
+  },
 });
 
-stockSchema.virtual('sales', {
-    ref: 'Sale',
-    localField: '_id',
-    foreignField: 'stock_id',
+stockSchema.virtual("sales", {
+  ref: "Sale",
+  localField: "_id",
+  foreignField: "stock_id",
 });
 
-
-
-const Stock = mongoose.model('stock', stockSchema);
+const Stock = mongoose.model("stock", stockSchema);
 
 export default Stock;

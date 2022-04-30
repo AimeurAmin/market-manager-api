@@ -1,29 +1,80 @@
-import Client from "../models/client.js";
-import Company from "../models/company.js";
-import validateFields from "../helpers/validateFields.js";
 import mongoose from "mongoose";
-
 import jwt from "jsonwebtoken";
+
+import Client from "../models/client.js";
+import validateFields from "../helpers/validateFields.js";
 
 import dotenv from "dotenv";
 dotenv.config();
+// ***************************************************************
+export const countClientsOfCompany = async (req, res) => {
+  try {
+    const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
+    let client = await Client.find({
+      company: decodedToken.company,
+    }).countDocuments();
+    res.send({ clients: client });
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
 
-export const getAllClients = async (req, res) => {
+export const countClientsOfUser = async (req, res) => {
+  try {
+    let count = await Client.find({ createdBy: req.user })
+      .populate("createdBy")
+      .countDocuments();
+    res.send({ count: count });
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+// *************************************************************
+
+export const getCompanyClients = async (req, res) => {
   const sort = {};
   if (req.query.sortBy) {
     const parts = req.query.sortBy.split(":");
-    sort[parts[0]] = parts[1] === desc ? -1 : 1;
+    sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
   }
+
   try {
-    const clients = await Client.find()
-      .populate("createdBy")
+    const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
+    const clients = await Client.find({
+      company: decodedToken.company,
+    })
+      .populate({ path: "company", select: ["name"] })
+      .populate({ path: "createdBy", select: ["name", "user_roles"] })
       .limit(req.query.limit || 0)
       .skip(
         (req.query.limit || 0) * (req.query.page || 0) - (req.query.limit || 0)
       )
       .sort(sort);
 
-    res.send(clients);
+    res.send({ status: "success", result: clients.length, data: { clients } });
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
+export const getAllClientsOfUser = async (req, res) => {
+  const sort = {};
+  if (req.query.sortBy) {
+    const parts = req.query.sortBy.split(":");
+    sort[parts[0]] = parts[1] === desc ? -1 : 1;
+  }
+  try {
+    const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
+    const clients = await Client.find({ createdBy: decodedToken._id })
+      .populate({ path: "createdBy", select: ["name", "user_roles"] })
+      .limit(req.query.limit || 0)
+      .skip(
+        (req.query.limit || 0) * (req.query.page || 0) - (req.query.limit || 0)
+      )
+      .sort(sort);
+
+    res.json({ status: "success", result: clients.length, data: { clients } });
   } catch (error) {
     res.status(400).send(error);
   }
@@ -32,10 +83,12 @@ export const getAllClients = async (req, res) => {
 export const getClientById = async (req, res) => {
   try {
     const client = await Client.findById(req.params.id);
-
+    if (!client) {
+      throw new Error("client not found");
+    }
     res.send(client);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send(error.message);
   }
 };
 
@@ -47,9 +100,9 @@ export const addClient = async (req, res) => {
   });
   try {
     await client.save();
-    res.send(client);
+    res.status(201).send(client);
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).send(err.message);
   }
 };
 
@@ -84,7 +137,7 @@ export const updateClientInfo = async (req, res) => {
 
   try {
     const client = await Client.findOneAndUpdate(
-      { id, createdBy: req.user._id },
+      { _id: id, createdBy: req.user._id },
       req.body,
       { new: true, runValidators: true }
     );
@@ -107,29 +160,7 @@ export const deleteClient = async (req, res) => {
       return res.status(404).send({ error: `client not found! `, status: 404 });
     }
 
-    res.send(client);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-};
-
-export const countClients = async (req, res) => {
-  try {
-    let count = await Client.countDocuments();
-    res.send({ count });
-  } catch (error) {
-    res.status(400).send(error);
-  }
-};
-
-export const getCompanyClients = async (req, res) => {
-  const token = req.token;
-  try {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    const company = await Company.findById(decodedToken.company).populate(
-      "clients"
-    );
-    res.send({ clients: company.clients });
+    res.status(204).send({ status: "success" });
   } catch (error) {
     res.status(400).send(error);
   }

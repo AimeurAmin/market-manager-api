@@ -10,7 +10,7 @@ const clientSchema = mongoose.Schema({
     required: true,
   },
   phone: {
-    type: Number,
+    type: String,
     required: true,
     unique: true,
   },
@@ -57,6 +57,15 @@ clientSchema.virtual("payments", {
   localField: "_id",
   foreignField: "client",
 });
+
+// clientSchema.pre("save", async function (next) {
+//   const client = this;
+//   const existPhone = await Client.findOne({ phone: client.phone });
+//   if (existPhone) {
+//     throw new Error("the client exist in our store");
+//   }
+//   next();
+// });
 
 const Client = mongoose.model("Client", clientSchema);
 

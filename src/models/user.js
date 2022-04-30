@@ -140,7 +140,6 @@ userSchema.virtual("permissions", {
   foreignField: "createdBy",
 });
 
-
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
 

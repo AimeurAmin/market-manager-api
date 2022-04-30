@@ -17,10 +17,11 @@ import {
   askForNewPassword,
   reConfirmMyAccount,
   confirmAccount,
+  addEmployee,
 } from "../controllers/user.js";
 import multer from "multer";
 import jwt from "jsonwebtoken";
-import welcomeMail  from "../emails/welcome-email.js";
+import welcomeMail from "../emails/welcome-email.js";
 import User from "../models/user.js";
 import Company from "../models/company.js";
 
@@ -42,6 +43,8 @@ const router = express.Router();
 // GET USER AVATAR
 router.get("/users/:id/avatar", getAvatarByUserId);
 // ----- Private routes -----
+
+router.post("/users/addEmployee", auth, addEmployee);
 
 // GET CURRENT USER PROFILE
 router.get("/users/me", auth, profile);

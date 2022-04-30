@@ -1,11 +1,10 @@
-
 import bcrypt from "bcryptjs";
 import Company from "../models/company.js";
 import User from "../models/user.js";
 import jwt from "jsonwebtoken";
 
 export const profile = async (req, res) => {
-  const user = await req.user.populate('company');
+  const user = await req.user.populate("company");
   res.send(user);
 };
 
@@ -209,6 +208,21 @@ export const signup = async (req, res) => {
     await user.save();
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
+export const addEmployee = async (req, res) => {
+  const userInfo = req.body;
+  const user = new User({ ...userInfo, company: req.user.company });
+  try {
+    if (!req.user.isCompanyOwner) {
+      throw new Error("you don't have the right to create new Employee!");
+    }
+    await user.save();
+    await user.generateAuthToken();
+    res.status(201).send(user);
   } catch (error) {
     res.status(400).send(error.message);
   }
