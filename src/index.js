@@ -5,6 +5,7 @@ import taskRouter from "./routes/task.js";
 import userRouter from "./routes/user.js";
 import clientsRoutes from "./routes/clients.js";
 import paymentsRoutes from "./routes/payments.js";
+import productsRoutes from "./routes/products.js";
 
 import dotenv from "dotenv";
 import cors from "cors";
@@ -25,6 +26,7 @@ const port = process.env.PORT;
 app.use(taskRouter);
 app.use(userRouter);
 
+app.use("/products", productsRoutes);
 app.use("/clients", clientsRoutes);
 app.use("/payments", paymentsRoutes);
 
