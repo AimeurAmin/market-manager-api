@@ -1,54 +1,75 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const productSchema = mongoose.Schema({
   reference: {
     type: String,
-    trim: true
   },
   type: {
     type: String,
-    trim: true
   },
   category: {
     type: String,
-    trim: true
   },
   brand: {
     type: String,
-    trim: true
   },
   qty_min: {
     type: Number,
     required: true,
   },
+  barcodes: [
+    {
+      barcode: {
+        type: String,
+        default: undefined,
+      },
+    },
+  ],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'User'
+    ref: "User",
   },
   company: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'Company'
+    ref: "Company",
   },
   timestamps: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 
-productSchema.virtual('barcodes', {
-    ref: 'Barcode',
-    localField: '_id',
-    foreignField: 'product_id',
+// productSchema.virtual("barcodes", {
+//   ref: "Barcode",
+//   localField: "_id",
+//   foreignField: "product",
+// });
+
+productSchema.virtual("stores", {
+  ref: "Stock",
+  localField: "_id",
+  foreignField: "product",
 });
 
-productSchema.virtual('stores', {
-    ref: 'Stock',
-    localField: '_id',
-    foreignField: 'product_id',
+productSchema.pre("save", async function (next) {
+  const product = this;
+  console.log(product);
+  // const docToUpdate = await this.model.findOne(this.getQuery());
+  const existsBarcode = await Product.find({
+    "barcodes.barcode": product.barcodes.barcode,
+  });
+  console.log(existsBarcode);
+  // if (existsBarcode) {
+  //   throw new Error("the barcode exists in our store");
+  // }
+
+  next();
 });
 
-const Product = mongoose.model('products', productSchema)
+productSchema.index({ reference: 1 }, { unique: true });
+
+const Product = mongoose.model("products", productSchema);
 
 export default Product;

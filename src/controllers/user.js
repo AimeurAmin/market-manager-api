@@ -1,4 +1,3 @@
-
 import bcrypt from "bcryptjs";
 import Company from "../models/company.js";
 import User from "../models/user.js";
@@ -214,6 +213,21 @@ export const signup = async (req, res) => {
   }
 };
 
+export const addEmployee = async (req, res) => {
+  const userInfo = req.body;
+  const user = new User({ ...userInfo, company: req.user.company });
+  try {
+    if (!req.user.isCompanyOwner) {
+      throw new Error("you don't have the right to create new Employee!");
+    }
+    await user.save();
+    await user.generateAuthToken();
+    res.status(201).send(user);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -232,14 +246,11 @@ export const login = async (req, res) => {
 export const resetPassword = async (req, res) => {
   const allowedUpdates = ["token", "password", "confirmPassword"];
   const updateFields = Object.keys(req.body);
-
   const validFields = updateFields.filter((field) =>
     allowedUpdates.includes(field)
   );
 
-  console.log("here");
   if (validFields.length < 3) {
-    console.log("wsel");
     return res.status(400).send({
       error: `The following fields are not allowed: ${[...allowedUpdates]}`,
       allowedUpdates,
