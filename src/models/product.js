@@ -21,7 +21,37 @@ const productSchema = mongoose.Schema({
     {
       barcode: {
         type: String,
-        default: undefined,
+        unique: true,
+      },
+    },
+  ],
+  lastUpdatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  updates: [
+    {
+      reference: { type: String },
+      type: { type: String },
+      category: { type: String },
+      brand: { type: String },
+      qty_min: {
+        type: Number,
+      },
+      barcodes: [
+        {
+          barcode: {
+            type: String,
+          },
+        },
+      ],
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      timestamps: {
+        type: Date,
+        default: Date.now(),
       },
     },
   ],
@@ -55,21 +85,64 @@ productSchema.virtual("stores", {
 
 productSchema.pre("save", async function (next) {
   const product = this;
-  console.log(product);
-  // const docToUpdate = await this.model.findOne(this.getQuery());
-  const existsBarcode = await Product.find({
-    "barcodes.barcode": product.barcodes.barcode,
+  const found = await Product.findOne({
+    reference: product.reference,
+    category: product.category,
   });
-  console.log(existsBarcode);
-  // if (existsBarcode) {
-  //   throw new Error("the barcode exists in our store");
-  // }
-
+  if (found) {
+    throw new Error(
+      `errorMessage: reference (${found.reference}) && category (${found.category}) already taken!`
+    );
+  }
+  let exists;
+  let arr = [];
+  await Promise.all(
+    product.barcodes.map(async (barcode) => {
+      exists = await Product.findOne({
+        "barcodes.barcode": barcode.barcode,
+      });
+      if (exists) {
+        arr.push(barcode.barcode);
+      }
+    })
+  );
+  if (arr.length > 0) {
+    throw new Error(`${arr}`);
+  }
   next();
 });
 
-productSchema.index({ reference: 1 }, { unique: true });
+productSchema.pre(/findOneAndUpdate/, async function (next) {
+  const product = this;
 
-const Product = mongoose.model("products", productSchema);
+  let exists;
+  let arr = [];
+  await Promise.all(
+    product._update.barcodes?.map(async (barcode) => {
+      exists = await Product.findOne({
+        "barcodes.barcode": barcode.barcode,
+      });
+      if (exists) {
+        arr.push(barcode.barcode);
+      }
+    })
+  );
+  if (arr.length > 0) {
+    throw new Error(`${arr}`);
+  }
+  next();
+});
+// productSchema.post(/findOneAndUpdate/, async function (product) {
+//   product.updates = [
+//     ...product.updates,
+//     { ...product, updatedBy: product.lastUpdatedBy },
+//   ];
+//
+//   await product.save();
+// });
+
+productSchema.post("remove", async function (product) {});
+
+const Product = mongoose.model("Product", productSchema);
 
 export default Product;
